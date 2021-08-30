@@ -8,13 +8,10 @@
 //     URL: https://github.com/RobTillaart/MAX14661
 //
 
-// - initial version has only support for opening and closing channels 
-//   by means of the direct access register.
-// - no support for shadow registers 
-
 
 #include "Arduino.h"
 #include "Wire.h"
+
 
 #define MAX14661_LIB_VERSION     (F("0.1.1"))
 
@@ -31,15 +28,15 @@ public:
   bool     isConnected();
 
   //
-  // PAIR INTERFACE 
-  // - keeps A and B line in sync, ideal for an I2C bus
+  // PAIR INTERFACE
+  // - keeps A and B line in sync, ideal for an I2C bus or Serial.
   // - returns false if channel nr > 15
   //
   // open ==> connect
   bool     openChannel(uint8_t channel);
   // close ==> disconnect
   bool     closeChannel(uint8_t channel);
-  // returns true if channel is opened 
+  // returns true if channel is opened
   bool     isOpenChannel(uint8_t channel);
 
   // open A and B lines of all channels
@@ -51,14 +48,15 @@ public:
   void     setChannels(uint16_t mask);
   // returns channel state as bit mask
   uint16_t getChannels();
-  // 
 
 
   //
   // SHADOW INTERFACE
+  // - experimental - not tested.
+  // - prepares channels to be set in one activateShadow().
   //
   void     shadowClear();
-  void     activateShadow();
+  void     activateShadow();   // should we have activateShadowA() and activateShadowB() ?
 
   void     setShadowChannelMaskA(uint16_t mask);
   uint16_t getShadowChannelMaskA();
@@ -76,12 +74,14 @@ public:
 
   //
   // MUX INTERFACE
-  // - allows only one channel simultaneously
+  // - allows only one channel simultaneously open
+  // - opening a channel closes any other.
   //
   void     MUXA(uint8_t channel);  // 0..15, else ==> off
   uint8_t  getMUXA();
   void     MUXB(uint8_t channel);  // 0..15, else ==> off
   uint8_t  getMUXB();
+
 
   //
   // FULL CONTROL PER A B LINE
@@ -93,10 +93,14 @@ public:
   bool     closeA(uint8_t channel);
   bool     closeB(uint8_t channel);
 
+
   // LOW LEVEL CONTROL
+  // optional optimizations.
   // uint8_t  getRegister(uint8_t reg, uint8_t bit);
   // uint8_t  setRegister(uint8_t reg, uint8_t bit);
   // uint8_t  clrRegister(uint8_t reg, uint8_t bit);
+  // uint16_t readRegister2(uint8_t reg);  // 2 bytes
+  // int      writeRegister2(uint8_t reg, uint16_t value);  // 2 bytes
 
   uint8_t  readRegister(uint8_t reg);
   int      writeRegister(uint8_t reg, uint8_t value);
@@ -105,11 +109,11 @@ public:
 private:
   uint8_t  _address;
   TwoWire* _wire;
-  
+
   int      _error;
 
 
-  
+
 // cache direct registers?
 };
 
@@ -117,4 +121,4 @@ private:
 
 
 
-// -- END OF FILE -- 
+// -- END OF FILE --

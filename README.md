@@ -19,6 +19,9 @@ connected up to 16 A lines and 16 B lines.
 The device can be controlled by SPI or I2C. 
 This library implements only an I2C interface
 
+The I2C address can be adjusted by 2 address lines A0 and A1.
+Addresses go from 0x4C (76) .. 0x4F (79). See table 3 datasheet.
+
 
 ## Interface
 
@@ -65,7 +68,8 @@ The SHADOW interface allows one to prepare which channels should be selected
 and activate them all at once. 
 
 - **bool shadowClear()** clears all shadow registers.
-- **void activateShadow()** write all shadow registers to regA and regB at once.
+- **void activateShadow()** write all shadow registers to the direction 
+registers of A and B at once. 
 
 prepare multiple channels at once. This is way faster than per channel.
 
@@ -126,12 +130,14 @@ to be elaborated
 
 ## Future
 
-- test test test
-- optimize low level bitset/clr/get
+- test behaviour
+- test I2C speed.
+- measure performance
+- optimize low level bit set/clr/get read/write 2bytes at once.
 - write unit tests.
 - error handling
 - improve documentation
-- initial value parameter for begin()?
+- initial values parameter for begin()?
 
 
 ## Operation
