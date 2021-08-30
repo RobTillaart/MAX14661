@@ -1,5 +1,7 @@
 
 [![Arduino CI](https://github.com/RobTillaart/MAX14661/workflows/Arduino%20CI/badge.svg)](https://github.com/marketplace/actions/arduino_ci)
+[![Arduino-lint](https://github.com/RobTillaart/MAX14661/actions/workflows/arduino-lint.yml/badge.svg)](https://github.com/RobTillaart/MAX14661/actions/workflows/arduino-lint.yml)
+[![JSON check](https://github.com/RobTillaart/MAX14661/actions/workflows/jsoncheck.yml/badge.svg)](https://github.com/RobTillaart/MAX14661/actions/workflows/jsoncheck.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/RobTillaart/MAX14661/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/RobTillaart/MAX14661.svg?maxAge=3600)](https://github.com/RobTillaart/MAX14661/releases)
 
@@ -34,12 +36,14 @@ So depending on your application choose the interface you want to use.
 and optional the Wire interface as parameter.
 - **bool begin()** initializes the wire interface 
 - **bool begin(sda, scl)** idem, for the ESP32 where one can choose the I2C pins.
-- **bool isConnected()** checks if the address is visable on the I2C bus
+- **bool isConnected()** checks if the address is visible on the I2C bus.
 
 
 ### PAIR interface
 
-The functions in this interface part all work symmetrical on the A and B line. They are managed as a PAIR. So this is ideal e.g. to multiplex an I2C bus.
+The functions in this interface part all work symmetrical on the A and B line. 
+They are managed as a PAIR. So this is ideal e.g. to multiplex an I2C bus or 
+a Serial TX/RX pair line.
 
 The interface allows to have multiple lines A/B open in parallel.
 
@@ -55,10 +59,29 @@ The interface allows to have multiple lines A/B open in parallel.
 
 ### SHADOW interface
 
-not implemented yet. 
+experimental - to be tested.
 
-Allows to prepare which channels should be selected and set them all at once. 
+The SHADOW interface allows one to prepare which channels should be selected 
+and activate them all at once. 
 
+- **bool shadowClear()** clears all shadow registers.
+- **void activateShadow()** write all shadow registers to regA and regB at once.
+
+prepare multiple channels at once. This is way faster than per channel.
+
+- **bool setShadowChannelMaskA(uint16_t mask)** write all channels at once.
+- **uint16_t getShadowChannelMaskA()** read shadow registers 
+- **bool setShadowChannelMaskB(uint16_t mask)** write all channels at once.
+- **uint16_t getShadowChannelMaskB()** read shadow registers
+
+prepare per channel
+
+- **bool isOpenShadowChannelA(uint8_t channel)** read status of specific channel in shadow registers.
+- **void openShadowChannelA(uint8_t channel)** prepare a specific channel to open
+- **void closeShadowChannelA(uint8_t channel)** prepare a specific channel to close
+- **bool isOpenShadowChannelB(uint8_t channel)** read status of specific channel in shadow registers.
+- **void openShadowChannelB(uint8_t channel)** prepare a specific channel to open.
+- **void closeShadowChannelB(uint8_t channel)** prepare a specific channel to close.
 
 
 ### MUX interface
@@ -66,7 +89,7 @@ Allows to prepare which channels should be selected and set them all at once.
 The MUX interface allows one channel to be open at a time.
 
 - **void MUXA(uint8_t channel)** if channel < 16 only that channel will be selected. All other values will select no channel.
-- **uint8_t  getMUXA()** returns the selected channel. 255 means none selected.
+- **uint8_t getMUXA()** returns the selected channel. 255 means none selected.
 - **void MUXB(uint8_t channel)** if channel < 16 only that channel will be selected. All other values will select no channel.
 - **uint8_t getMUXB()** returns the selected channel. 255 means none selected.
 
@@ -93,7 +116,7 @@ Check datasheet for these values of the registers.
 
 ### Misc
 
-- **lastError()** returns the last error, limited to I2C for now.
+- **int lastError()** returns the last error, limited to I2C for now.
 
 
 ## Error codes
@@ -101,14 +124,14 @@ Check datasheet for these values of the registers.
 to be elaborated
 
 
-## TODO
+## Future
 
-- test test 
+- test test test
+- optimize low level bitset/clr/get
 - write unit tests.
-- SHADOW interface
 - error handling
 - improve documentation
-- initial value param for begin()?
+- initial value parameter for begin()?
 
 
 ## Operation

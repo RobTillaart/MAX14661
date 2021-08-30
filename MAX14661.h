@@ -3,7 +3,7 @@
 //    FILE: MAX14661.h
 //  AUTHOR: Rob Tillaart
 //    DATE: 2021-01-29
-// VERSION: 0.1.0
+// VERSION: 0.1.1
 // PURPOSE: Arduino library for MAX14661 16 channel I2C multiplexer
 //     URL: https://github.com/RobTillaart/MAX14661
 //
@@ -16,7 +16,7 @@
 #include "Arduino.h"
 #include "Wire.h"
 
-#define MAX14661_LIB_VERSION     (F("0.1.0"))
+#define MAX14661_LIB_VERSION     (F("0.1.1"))
 
 
 class MAX14661
@@ -57,11 +57,21 @@ public:
   //
   // SHADOW INTERFACE
   //
-  // TODO reg 0x10 ..0x13
-  //
-  // openShadow(channel)
-  // closeShadow(channel)
-  // sync () - reg 14 / 15 10001
+  void     shadowClear();
+  void     activateShadow();
+
+  void     setShadowChannelMaskA(uint16_t mask);
+  uint16_t getShadowChannelMaskA();
+  void     setShadowChannelMaskB(uint16_t mask);
+  uint16_t getShadowChannelMaskB();
+
+  bool     openShadowChannelA(uint8_t channel);
+  bool     closeShadowChannelA(uint8_t channel);
+  bool     isOpenShadowChannelA(uint8_t channel);
+
+  bool     openShadowChannelB(uint8_t channel);
+  bool     closeShadowChannelB(uint8_t channel);
+  bool     isOpenShadowChannelB(uint8_t channel);
 
 
   //
@@ -84,6 +94,10 @@ public:
   bool     closeB(uint8_t channel);
 
   // LOW LEVEL CONTROL
+  // uint8_t  getRegister(uint8_t reg, uint8_t bit);
+  // uint8_t  setRegister(uint8_t reg, uint8_t bit);
+  // uint8_t  clrRegister(uint8_t reg, uint8_t bit);
+
   uint8_t  readRegister(uint8_t reg);
   int      writeRegister(uint8_t reg, uint8_t value);
   int      lastError();
