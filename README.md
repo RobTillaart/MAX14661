@@ -17,18 +17,18 @@ The MAX14661 multiplexer is a 16 x 2 channel multiplexer.
 It has 2 lines A and B which can be 
 connected up to 16 A lines and 16 B lines.
 
-The library provides 3 kinds of interfaces (see below)
-- **PAIR**
-- **SHADOW**
-- **MUX**
+The library provides 4 kinds of interfaces (see below)
+- **PAIR** switch A and B in pairs
+- **SHADOW** use a shadow register to set all simultaneously.
+- **MUX** open channels exclusively.
+- **FULL** control all as you like.
 
 Mixing these interfaces is allowed but definitely not advised as 
 especially the **PAIR** interface assumes that A and B selections 
 are kept in sync.
-
 So depending on your application choose the interface you want to use.
 
-The device can be controlled by SPI or I2C. 
+The MAX14661 device can be controlled by SPI or I2C. 
 This library implements the I2C interface.
 
 
@@ -87,14 +87,15 @@ The interface allows to have multiple lines A/B open in parallel.
 - **uint16_t getChannels()** returns a bit mask of the channels connected.
 
 Note: 
-**setChannels(mask)** is the only way to set channels at the same moment.
+**setChannels(mask)** is the only way to set channels at the very same moment
+in the **PAIR** interface.
 
 
 #### SHADOW interface
 
-experimental - to be tested.
+Experimental - to be tested.
 
-The SHADOW interface allows one to prepare which channels should be selected 
+The SHADOW interface allows one to prepare which channels should be selected, 
 and activate them all at once. 
 
 - **bool shadowClear()** clears all shadow registers.
@@ -117,6 +118,7 @@ Prepare per channel.
 - **void openShadowChannelB(uint8_t channel)** prepare a specific channel to open.
 - **void closeShadowChannelB(uint8_t channel)** prepare a specific channel to close.
 
+Note: there is no command that sets both A and B simultaneously.
 
 #### MUX interface
 
@@ -152,12 +154,9 @@ Check datasheet for the meaning of and the values in the registers.
 - **int writeRegister(uint8_t reg, uint8_t value)** write value to device register.
 
 
-#### Misc
+#### Error handling
 
 - **int lastError()** returns the last error, limited to low level I2C for now.
-
-
-## Error codes
 
 to be elaborated  / implemented(see future)
 
@@ -192,8 +191,13 @@ See examples
 
 - optimize low level bit set/clr/get read/write 2 bytes at once.
 - test I2C communication speed.
+  - 100- 400 kHz and up.
 - measure performance.
 - cache direct registers. (fast response).
+- **ShutDown()** SD pin. for low power datasheet p.15
+  - document it.
+  - implement.
+
 
 
 #### Wont
