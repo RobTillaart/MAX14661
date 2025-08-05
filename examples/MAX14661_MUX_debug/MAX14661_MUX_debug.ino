@@ -71,7 +71,6 @@ void test2()
     Serial.print("\t");
     Serial.print(mux.lastError());
     Serial.print("\t");
-    Serial.println(mux.lastError());
     Serial.print(mux.getMUXB(), HEX);
     Serial.print("\t");
     Serial.println(mux.lastError());

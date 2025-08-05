@@ -21,6 +21,7 @@ void setup()
   Serial.println();
 
   Wire.begin();
+
   if (mux.begin() == false)
   {
     Serial.print(mux.lastError());
