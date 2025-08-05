@@ -37,6 +37,11 @@ MAX14661::MAX14661(const uint8_t deviceAddress, TwoWire *wire)
 bool MAX14661::begin()
 {
   _error = MAX14661_OK;
+  if ((_address < 76) || (_address > 79))
+  {
+    _error = MAX14661_ERR_ADDRESS;
+    return false;
+  }
   return isConnected();
 }
 
@@ -45,7 +50,7 @@ bool MAX14661::isConnected()
 {
   _wire->beginTransmission(_address);
   _error = _wire->endTransmission();
-  //  set MAX14661_ERR_I2C
+  //  set MAX14661_ERR_I2C (nope)
   return ( _error == 0);
 }
 
@@ -62,7 +67,11 @@ uint8_t MAX14661::getAddress()
 //
 bool MAX14661::openChannel(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_DIR0;
   if (ch > 7)
@@ -71,19 +80,27 @@ bool MAX14661::openChannel(uint8_t channel)
     ch -= 8;
   }
   uint8_t mask = readRegister(reg);
+  //  test _error?
   mask |= (1 << ch);
   writeRegister(reg, mask);
+  //  test _error?
   reg += 2;
   mask = readRegister(reg);
+  //  test _error?
   mask |= (1 << ch);
   writeRegister(reg, mask);
+  //  test _error?
   return true;
 }
 
 
 bool MAX14661::closeChannel(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_DIR0;
   if (ch > 7)
@@ -92,12 +109,16 @@ bool MAX14661::closeChannel(uint8_t channel)
     ch -= 8;
   }
   uint8_t mask = readRegister(reg);
+  //  test _error?
   mask &= ~(1 << ch);
   writeRegister(reg, mask);
+  //  test _error?
   reg += 2;
   mask = readRegister(reg);
+  //  test _error?
   mask &= ~(1 << ch);
   writeRegister(reg, mask);
+  //  test _error?
   return true;
 }
 
@@ -105,7 +126,11 @@ bool MAX14661::closeChannel(uint8_t channel)
 //  assumption both A and B are in same state
 bool MAX14661::isOpenChannel(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_DIR0;
   if (ch > 7)
@@ -114,6 +139,7 @@ bool MAX14661::isOpenChannel(uint8_t channel)
     ch -= 8;
   }
   uint8_t mask = readRegister(reg);
+  //  test _error?
   return (mask & (1 << ch)) > 0;
 }
 
@@ -121,21 +147,28 @@ bool MAX14661::isOpenChannel(uint8_t channel)
 void MAX14661::openAllChannels()
 {
   setChannels(0xFFFF);
+  //  return bool
 }
 
 
 void MAX14661::closeAllChannels()
 {
   setChannels(0);
+  //  return bool
 }
 
 
 void MAX14661::setChannels(uint16_t mask)
 {
   writeRegister(MAX14661_DIR0, mask & 0x00FF);
+  //  test _error?
   writeRegister(MAX14661_DIR1, (mask & 0xFF00) >> 8);
+  //  test _error?
   writeRegister(MAX14661_DIR2, mask & 0x00FF);
+  //  test _error?
   writeRegister(MAX14661_DIR3, (mask & 0xFF00) >> 8);
+  //  test _error?
+  //  return bool
 }
 
 
@@ -143,6 +176,7 @@ void MAX14661::setChannels(uint16_t mask)
 uint16_t MAX14661::getChannels()
 {
   uint16_t channels = readRegister(MAX14661_DIR1) << 8;
+  //  test _error?
   channels |= readRegister(MAX14661_DIR0);
   return channels;
 }
@@ -162,7 +196,10 @@ void MAX14661::shadowClear()
 void MAX14661::activateShadow()
 {
   writeRegister(MAX14661_CMD_A, 0x11);
+  //  test _error?
   writeRegister(MAX14661_CMD_B, 0x11);
+  //  test _error?
+  //  return bool
 }
 
 
@@ -172,7 +209,10 @@ void MAX14661::activateShadow()
 void MAX14661::setShadowChannelMaskA(uint16_t mask)
 {
   writeRegister(MAX14661_SHDW0, mask & 0xFF);
+  //  test _error?
   writeRegister(MAX14661_SHDW1, mask >> 8);
+  //  test _error?
+  //  return bool...
 }
 
 
@@ -187,7 +227,10 @@ uint16_t MAX14661::getShadowChannelMaskA()
 void MAX14661::setShadowChannelMaskB(uint16_t mask)
 {
   writeRegister(MAX14661_SHDW2, mask & 0xFF);
+  //  test _error?
   writeRegister(MAX14661_SHDW3, mask >> 8);
+  //  test _error?
+  //  return bool...
 }
 
 
@@ -204,7 +247,11 @@ uint16_t MAX14661::getShadowChannelMaskB()
 
 bool MAX14661::openShadowChannelA(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_SHDW0;
   if (ch > 7)
@@ -213,15 +260,21 @@ bool MAX14661::openShadowChannelA(uint8_t channel)
     ch -= 8;
   }
   uint8_t mask = readRegister(reg);
+  //  test _error?
   mask |= (1 << ch);
   writeRegister(reg, mask);
+  //  test _error?
   return true;
 }
 
 
 bool MAX14661::closeShadowChannelA(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_SHDW0;
   if (ch > 7)
@@ -230,15 +283,21 @@ bool MAX14661::closeShadowChannelA(uint8_t channel)
     ch -= 8;
   }
   uint8_t mask = readRegister(reg);
+  //  test _error?
   mask &= ~(1 << ch);
   writeRegister(reg, mask);
+  //  test _error?
   return true;
 }
 
 
 bool MAX14661::isOpenShadowChannelA(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_SHDW0;
   if (ch > 7)
@@ -247,13 +306,18 @@ bool MAX14661::isOpenShadowChannelA(uint8_t channel)
     ch -= 8;
   }
   uint8_t mask = readRegister(reg);
+  //  test _error?
   return (mask & (1 << ch)) > 0;
 }
 
 
 bool MAX14661::openShadowChannelB(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_SHDW0;
   if (ch > 7)
@@ -263,14 +327,20 @@ bool MAX14661::openShadowChannelB(uint8_t channel)
   }
   uint8_t mask = readRegister(reg);
   mask |= (1 << ch);
+  //  test _error?
   writeRegister(reg, mask);
+  //  test _error?
   return true;
 }
 
 
 bool MAX14661::closeShadowChannelB(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_SHDW2;
   if (ch > 7)
@@ -280,14 +350,20 @@ bool MAX14661::closeShadowChannelB(uint8_t channel)
   }
   uint8_t mask = readRegister(reg);
   mask &= ~(1 << ch);
+  //  test _error?
   writeRegister(reg, mask);
+  //  test _error?
   return true;
 }
 
 
 bool MAX14661::isOpenShadowChannelB(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_SHDW2;
   if (ch > 7)
@@ -296,6 +372,7 @@ bool MAX14661::isOpenShadowChannelB(uint8_t channel)
     ch -= 8;
   }
   uint8_t mask = readRegister(reg);
+  //  test _error?
   return (mask & (1 << ch)) > 0;
 }
 
@@ -343,7 +420,11 @@ uint8_t MAX14661::getMUXB()
 //
 bool MAX14661::openA(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_DIR0;
   if (ch > 7)
@@ -360,7 +441,11 @@ bool MAX14661::openA(uint8_t channel)
 
 bool MAX14661::openB(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_DIR2;
   if (ch > 7)
@@ -377,7 +462,11 @@ bool MAX14661::openB(uint8_t channel)
 
 bool MAX14661::closeA(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_DIR0;
   if (ch > 7)
@@ -394,7 +483,11 @@ bool MAX14661::closeA(uint8_t channel)
 
 bool MAX14661::closeB(uint8_t channel)
 {
-  if (channel > 15) return false;
+  if (channel > 15)
+  {
+    _error = MAX14661_ERR_CHANNEL;
+    return false;
+  }
   uint8_t ch = channel;
   uint8_t reg = MAX14661_DIR2;
   if (ch > 7)
@@ -420,14 +513,15 @@ uint8_t MAX14661::readRegister(uint8_t reg)
   _error = _wire->endTransmission();
   if (_error != 0)
   {
-    //  set MAX14661_ERR_I2C
+    _error = MAX14661_ERR_I2C_READ;
     return 0;
   }
   if (_wire->requestFrom(_address, (uint8_t)1) != 1)
   {
-    _error = -1;
+    _error = MAX14661_ERR_I2C_REQUEST;
     return 0;
   }
+  _error = MAX14661_OK;
   return _wire->read();
 }
 

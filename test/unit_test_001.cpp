@@ -52,8 +52,10 @@ unittest(test_constants)
 {
   //  error constants
   assertEqual(0x00, MAX14661_OK);
-  assertEqual(0x80, MAX14661_ERR_I2C);
-  assertEqual(0x81, MAX14661_ERR_CHANNEL);
+  assertEqual(0x80, MAX14661_ERR_I2C_READ);
+  assertEqual(0x81, MAX14661_ERR_I2C_REQUEST);
+  assertEqual(0x90, MAX14661_ERR_CHANNEL);
+  assertEqual(0x91, MAX14661_ERR_ADDRESS);
 }
 
 

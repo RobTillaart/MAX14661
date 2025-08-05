@@ -15,8 +15,11 @@
 #define MAX14661_LIB_VERSION                (F("0.2.1"))
 
 #define MAX14661_OK                         0x00
-#define MAX14661_ERR_I2C                    0x80   //  Not implemented yet
-#define MAX14661_ERR_CHANNEL                0x81   //  Not implemented yet
+#define MAX14661_ERR_I2C_READ               0x80
+#define MAX14661_ERR_I2C_REQUEST            0x81
+#define MAX14661_ERR_CHANNEL                0x90
+#define MAX14661_ERR_ADDRESS                0x91
+
 
 
 class MAX14661

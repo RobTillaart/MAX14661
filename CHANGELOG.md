@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.2.1] - 2025-08-05
 - add debug example
+- improve error diagnostic
 - update examples
 - update license
+- update keywords.txt
 - minor edits
 
 ## [0.2.0] - 2023-12-07

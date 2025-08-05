@@ -35,7 +35,7 @@ The MAX14661 device can be controlled by SPI or I2C.
 This library implements the I2C interface.
 
 
-#### I2C address
+### I2C address
 
 The I2C address can be adjusted by 2 address lines A0 and A1.
 Addresses go from 0x4C (76) .. 0x4F (79). See table 3 datasheet.
@@ -47,7 +47,7 @@ According to the datasheet the I2C Serial-Clock Frequency is max 400 kHz.
 (SPI can do 10 MHz)
 
 
-#### 0.2.0 Breaking change
+### 0.2.0 Breaking change
 
 Version 0.2.0 introduced a breaking change.
 You cannot set the pins in **begin()** any more.
@@ -56,7 +56,7 @@ The user has to call **Wire.begin()** and can optionally set the Wire pins
 before calling **begin()**.
 
 
-#### Related
+### Related
 
 - https://github.com/RobTillaart/TCA9548 specific I2C multiplexer.
 - https://github.com/RobTillaart/HC4067 1x16 channel multiplexer.
@@ -72,7 +72,7 @@ before calling **begin()**.
 ```
 
 
-#### Constructor
+### Constructor
 
 - **MAX14661(uint8_t deviceAddress, TwoWire \*wire = &Wire)** Constructor with device address, 
 and optional the Wire interface as parameter.
@@ -81,7 +81,7 @@ Returns true if device address is seen on I2C bus.
 - **bool isConnected()** checks if the device address is visible on the I2C bus.
 
 
-#### PAIR interface
+### PAIR interface
 
 The functions in this interface part all work symmetrical on the A and B line. 
 They are managed as a PAIR. So this is ideal e.g. to multiplex an I2C bus or 
@@ -103,7 +103,7 @@ Note:
 in the **PAIR** interface.
 
 
-#### SHADOW interface
+### SHADOW interface
 
 Experimental - to be tested.
 
@@ -132,7 +132,7 @@ Prepare per channel.
 
 Note: there is no command that sets both A and B simultaneously.
 
-#### MUX interface
+### MUX interface
 
 The MUX interface allows one channel (0..15) to be open at a time.
 
@@ -146,7 +146,7 @@ All other values will select no channel.
 255 means none selected.
 
 
-#### FULL CONTROL interface
+### FULL CONTROL interface
 
 Full control per channel, any combination is possible.
 Use with care as these can interfere e.g. with the PAIR interface.
@@ -158,7 +158,7 @@ All functions return false if channel > 15.
 - **bool closeB(uint8_t channel)** idem
 
 
-#### LOW LEVEL CONTROL interface
+### LOW LEVEL CONTROL interface
 
 Check datasheet for the meaning of and the values in the registers.
 
@@ -166,22 +166,20 @@ Check datasheet for the meaning of and the values in the registers.
 - **int writeRegister(uint8_t reg, uint8_t value)** write value to device register.
 
 
-#### Error handling
+### Error handling
 
-- **int lastError()** returns the last error, limited to low level I2C for now.
+- **int lastError()** returns the last error, resets the internal error flag.
 
-to be elaborated  / implemented(see future)
+to be elaborated  / implemented
 
-|  Define                |  value  |  notes  |
-|:-----------------------|:-------:|:-------:|
-|  MAX14661_OK           |  0x00   |
-|  MAX14661_ERR_I2C      |  0x80   |  not implemented yet  |
-|  MAX14661_ERR_CHANNEL  |  0x81   |  not implemented yet  |
+|  Define                    |  value  |  notes  |
+|:---------------------------|:-------:|:-------:|
+|  MAX14661_OK               |  0x00   |
+|  MAX14661_ERR_I2C_READ     |  0x80   |  not implemented yet  |
+|  MAX14661_ERR_I2C_REQUEST  |  0x81   |  not implemented yet  |
+|  MAX14661_ERR_CHANNEL      |  0x90   |
+|  MAX14661_ERR_ADDRESS      |  0x91   |
 
-
-## Operation
-
-See examples
 
 
 ## Future
@@ -193,16 +191,16 @@ See examples
 #### Should
 
 - test behaviour.
-- write unit tests.
 - implement error handling.
   - use an internal mode to see which of the three interfaces is used
     consequently or not?
-  - MAX14661_ERR_ADDRESS ?
-
+  - redo void() => bool() so more detail or even int()?
+  
 
 #### Could
 
 - optimize low level bit set/clr/get read/write 2 bytes at once.
+- write unit tests.
 - test I2C communication speed.
   - 100- 400 kHz and up.
 - measure performance.
@@ -210,6 +208,7 @@ See examples
 - **ShutDown()** SD pin. for low power datasheet p.15
   - document it.
   - implement.
+- **int MUXA()** to return writeRegister()?
 
 
 #### Wont
