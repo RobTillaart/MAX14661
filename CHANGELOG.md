@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - update examples
 - update license
 - update keywords.txt
+- update readme.md
 - minor edits
 
 ## [0.2.0] - 2023-12-07

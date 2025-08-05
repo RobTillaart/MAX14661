@@ -65,6 +65,7 @@ uint8_t MAX14661::getAddress()
 //
 //  PAIR INTERFACE
 //
+//  opens both A and B channel
 bool MAX14661::openChannel(uint8_t channel)
 {
   if (channel > 15)
@@ -79,12 +80,19 @@ bool MAX14661::openChannel(uint8_t channel)
     reg = MAX14661_DIR1;
     ch -= 8;
   }
+  //  Handle switch A
   uint8_t mask = readRegister(reg);
   //  test _error?
   mask |= (1 << ch);
   writeRegister(reg, mask);
   //  test _error?
+
+  //  Handle switch B
   reg += 2;
+  //  TODO
+  //  do we need this as mask A == mask B == identical.
+  //  - forces PAIR behaviour
+  //  - improves performance a bit.
   mask = readRegister(reg);
   //  test _error?
   mask |= (1 << ch);
@@ -94,6 +102,7 @@ bool MAX14661::openChannel(uint8_t channel)
 }
 
 
+//  closes both A and B channel
 bool MAX14661::closeChannel(uint8_t channel)
 {
   if (channel > 15)
@@ -108,12 +117,19 @@ bool MAX14661::closeChannel(uint8_t channel)
     reg = MAX14661_DIR1;
     ch -= 8;
   }
+  //  Handle switch A
   uint8_t mask = readRegister(reg);
   //  test _error?
   mask &= ~(1 << ch);
   writeRegister(reg, mask);
   //  test _error?
+
+  //  Handle switch B
   reg += 2;
+  //  TODO
+  //  do we need this as mask A == mask B == identical.
+  //  - forces PAIR behaviour
+  //  - improves performance a bit.
   mask = readRegister(reg);
   //  test _error?
   mask &= ~(1 << ch);
@@ -123,7 +139,7 @@ bool MAX14661::closeChannel(uint8_t channel)
 }
 
 
-//  assumption both A and B are in same state
+//  assumption both A and B are in same state in PAIR mode
 bool MAX14661::isOpenChannel(uint8_t channel)
 {
   if (channel > 15)
@@ -160,6 +176,11 @@ void MAX14661::closeAllChannels()
 
 void MAX14661::setChannels(uint16_t mask)
 {
+  //  only do bit magic once.
+  //  uint8_t maskLow = mask & 0x00FF;
+  //  uint8_t maskHigh = mask >> 8;
+  //  order of writes may matter, DIR0->DIR2->DIR1->DIR3 better?
+
   writeRegister(MAX14661_DIR0, mask & 0x00FF);
   //  test _error?
   writeRegister(MAX14661_DIR1, (mask & 0xFF00) >> 8);
@@ -172,7 +193,7 @@ void MAX14661::setChannels(uint16_t mask)
 }
 
 
-//  assumption both A and B are in same state
+//  assumption both A and B are in same state in PAIR mode
 uint16_t MAX14661::getChannels()
 {
   uint16_t channels = readRegister(MAX14661_DIR1) << 8;
@@ -195,6 +216,7 @@ void MAX14661::shadowClear()
 
 void MAX14661::activateShadow()
 {
+  //  table 2: Copy shadows registers to switches
   writeRegister(MAX14661_CMD_A, 0x11);
   //  test _error?
   writeRegister(MAX14661_CMD_B, 0x11);
@@ -375,7 +397,6 @@ bool MAX14661::isOpenShadowChannelB(uint8_t channel)
   //  test _error?
   return (mask & (1 << ch)) > 0;
 }
-
 
 
 /////////////////////////////////////////////////////////

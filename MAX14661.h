@@ -35,6 +35,7 @@ public:
   //  PAIR INTERFACE
   //  - keeps A and B line in sync, ideal for an I2C bus or Serial.
   //  - returns false if channel > 15
+  //  - verify with lastError().
   //
   //  open ==> connect
   bool     openChannel(uint8_t channel);
@@ -80,9 +81,9 @@ public:
   //  - allows only one channel simultaneously open
   //  - opening a channel closes any other.
   //
-  void     MUXA(uint8_t channel);  //  0..15, else ==> off
+  void     MUXA(uint8_t channel);  //  0..15, else ==> all off
   uint8_t  getMUXA();
-  void     MUXB(uint8_t channel);  //  0..15, else ==> off
+  void     MUXB(uint8_t channel);  //  0..15, else ==> all off
   uint8_t  getMUXB();
 
 

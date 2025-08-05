@@ -23,7 +23,8 @@ void setup()
   Wire.begin();
   if (mux.begin() == false)
   {
-    Serial.println("Could not find MAX14661");
+    Serial.print(mux.lastError());
+    Serial.println("\t Could not find MAX14661");
     while(1);
   }
   
@@ -93,7 +94,7 @@ void test5()
   Serial.println(__FUNCTION__);
   for (int i = 0; i < 10; i++)
   {
-    uint16_t mask = random(65535);
+    uint16_t mask = random(65536);
     mux.setChannels(mask);
     Serial.println(mux.getChannels(), HEX);
   }
@@ -108,4 +109,3 @@ void loop()
 
 
 //  -- END OF FILE --
-

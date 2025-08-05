@@ -1,14 +1,14 @@
 //
 //    FILE: MAX14661_MUX_debug.ino
 //  AUTHOR: Rob Tillaart
-// PURPOSE: debug communication
+// PURPOSE: use of lastError for diagnostics.
 //     URL: https://github.com/RobTillaart/MAX14661
 
 
 #include "Wire.h"
 #include "MAX14661.h"
 
-MAX14661 mux(0x62);
+MAX14661 mux(0x4C);
 
 
 void setup()
@@ -21,10 +21,10 @@ void setup()
   Serial.println();
 
   Wire.begin();
-
   if (mux.begin() == false)
   {
-    Serial.println("Could not find MAX14661");
+    Serial.print(mux.lastError());
+    Serial.println("\t Could not find MAX14661");
     while (1);
   }
 

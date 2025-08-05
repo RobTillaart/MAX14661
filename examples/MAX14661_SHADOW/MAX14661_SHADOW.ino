@@ -1,7 +1,7 @@
 //
 //    FILE: MAX14661_SHADOW.ino
 //  AUTHOR: Rob Tillaart
-// PURPOSE: demo PAIR interface
+// PURPOSE: demo SHADOW interface
 //     URL: https://github.com/RobTillaart/MAX14661
 
 
@@ -23,7 +23,8 @@ void setup()
   Wire.begin();
   if (mux.begin() == false)
   {
-    Serial.println("Could not find MAX14661");
+    Serial.print(mux.lastError());
+    Serial.println("\t Could not find MAX14661");
     while (1);
   }
 
@@ -108,4 +109,3 @@ void loop()
 
 
 //  -- END OF FILE --
-

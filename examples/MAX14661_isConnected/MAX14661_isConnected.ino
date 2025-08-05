@@ -1,8 +1,7 @@
 //
 //    FILE: MAX14661_isConnected.ino
 //  AUTHOR: Rob Tillaart
-// PURPOSE: test MAX14661 lib
-//    DATE: 2021-01-29
+// PURPOSE: test MAX14661 address can be seen on I2C bus.
 //     URL: https://github.com/RobTillaart/MAX14661
 //
 //  test behaviour when device is not connected and reconnected again.
@@ -31,7 +30,8 @@ void setup()
 
   if (mux.begin() == false)
   {
-    Serial.println("Could not find MAX14661");
+    Serial.print(mux.lastError());
+    Serial.println("\t Could not find MAX14661");
   }
 
   Serial.println("end of setup()");
@@ -57,4 +57,3 @@ void loop()
 
 
 //  -- END OF FILE --
-
