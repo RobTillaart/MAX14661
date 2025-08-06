@@ -19,15 +19,11 @@ Arduino library for MAX14661 multiplexer with I2C interface.
 **Experimental**
 
 The MAX14661 multiplexer is a sort of 16 x 2 channel multiplexer.
-It has 16 ABxx lines which can be connected to COM-A and/or COM-B.
+The device has 16 ABxx lines which can be connected to COM-A and/or COM-B.
 
-
-Need REDO
-
-
-The library provides 4 kinds of interfaces (see below)
+The library provides four interfaces (details see below)
 - **PAIR** switch A and B in pairs
-- **SHADOW** use a shadow register to set all simultaneously.
+- **SHADOW** use a shadow register to prepare and set all simultaneously.
 - **MUX** open channels exclusively.
 - **FULL** control all as you like.
 
@@ -37,19 +33,20 @@ are kept in sync.
 So depending on your application choose the interface you want to use.
 
 The MAX14661 device can be controlled by SPI or I2C.
-This library implements the I2C interface.
+This library implements only the I2C interface.
+
+Feedback as always is welcome.
 
 
-### I2C address
+### 0.3.0 Breaking change
 
-The I2C address can be adjusted by 2 address lines A0 and A1.
-Addresses go from 0x4C (76) .. 0x4F (79). See table 3 datasheet.
+Version 0.3.0 introduced a breaking change.
+The PAIR interface got a **complete rewrite** so its functionality matches
+the intention to work as a multiplexer for 2-wire based protocols like
+I2C and Serial.
 
-This implies you may have up to 4 MAX14661 multiplexers on one I2C bus.
-If you need more, consider a TCA9548.
-
-According to the datasheet the I2C Serial-Clock Frequency is max 400 kHz.
-(SPI can do 10 MHz)
+The PAIR functions of pre-0.3.0 version are all removed and new functions
+have been added to replace them.
 
 
 ### 0.2.0 Breaking change
@@ -59,6 +56,36 @@ You cannot set the pins in **begin()** any more.
 This reduces the dependency of processor dependent Wire implementations.
 The user has to call **Wire.begin()** and can optionally set the Wire pins
 before calling **begin()**.
+
+
+### I2C address
+
+The I2C address can be adjusted by 2 address lines A0 and A1.
+Addresses go from 0x4C (76) .. 0x4F (79). See table 3 datasheet.
+This implies you may have up to 4 MAX14661 multiplexers on one I2C bus.
+If you need more, consider a TCA9548, see below.
+
+According to the datasheet the I2C Serial-Clock Frequency is max 400 kHz.
+This needs to be tested.
+(SPI can do 10 MHz)
+
+
+### I2C multiplexing
+
+Sometimes you need to control more devices than possible with the default
+address range the device provides.
+This is possible with an I2C multiplexer e.g. TCA9548 which creates up
+to eight channels (think of it as I2C subnets) which can use the complete
+address range of the device.
+
+Drawback of using a multiplexer is that it takes more administration in
+your code e.g. which device is on which channel.
+This will slow down the access, which must be taken into account when
+deciding which devices are on which channel.
+Also note that switching between channels will slow down other devices
+too if they are behind the multiplexer.
+
+- https://github.com/RobTillaart/TCA9548
 
 
 ### Related
@@ -88,54 +115,62 @@ Returns true if device address is seen on I2C bus.
 
 ### PAIR interface
 
-The functions in this interface part all work symmetrical on the A and B line.
-They are managed as a PAIR. So this is ideal e.g. to multiplex an I2C bus or
-a Serial TX/RX pair line.
+(note the PAIR interface is completely rewritten in 0.3.0)
 
-The interface allows to have multiple lines A/B open in parallel.
+The ABxx lines are considered to form 8 pairs { (0,1), (2,3), (4,5), ... (14,15) }.
+The functions in this interface manage the switches in pairs, so when e.g. pair 3 
+is connected, AB06 connects with COM-A and AB07 connects with COM-B.
+This allows one to multiplex an I2C bus, a Serial TX/RX pair, or any 2 wires based protocol.
 
-  // open ==> connect
-- **bool openChannel(uint8_t channel)** connects A/B to chosen channel.
-- **bool closeChannel(uint8_t channel)** disconnects channel from A/B.
-- **bool isOpenChannel(uint8_t channel)** returns true if connected to A/B.
-- **void openAllChannels()** connects all channels.
-- **void closeAllChannels()** disconnects all channels.
-- **void setChannels(uint16_t mask)** connect multiple channels with a bit mask.
-- **uint16_t getChannels()** returns a bit mask of the channels connected.
+|  pair  |  COM-A  |  COM-B  |  notes  |
+|:------:|:-------:|:-------:|:--------|
+|   0    |    0    |    1    |
+|   1    |    2    |    3    |
+|   2    |    4    |    5    |
+|   3    |    6    |    7    |
+|   4    |    8    |    9    |
+|   5    |   10    |   11    |
+|   6    |   12    |   13    |
+|   7    |   14    |   15    |
 
-Note:
-**setChannels(mask)** is the only way to set channels at the very same moment
-in the **PAIR** interface.
+The PAIR interface allows to have multiple pairs to be connected in parallel.
+
+- **bool connectPair(uint8_t pair)** connects a pair of lines to COM-A, COM-B.
+- **bool disconnectPair(uint8_t pair)** disconnects a pair of lines from COM-A, COM-B.
+- **bool isConnectedPair(uint8_t pair)** returns true if pair is connected to COM-A, COM-B.
+- **void disconnectAllPairs()** disconnects all pairs.
 
 
 ### SHADOW interface
 
-Experimental - to be tested.
-
-The SHADOW interface allows one to prepare which channels should be selected,
-and activate them all at once.
+The SHADOW interface allows one to prepare which switches should be set,
+and activate them all (nearly) simultaneously.
 
 - **bool shadowClear()** clears all shadow registers.
 - **void activateShadow()** write all shadow registers to the direction
-registers of A and B at once.
+registers of COM-A and COM-B at once.
 
 Prepare multiple channels at once. This is way faster than per channel.
 
-- **bool setShadowChannelMaskA(uint16_t mask)** write all channels at once.
-- **uint16_t getShadowChannelMaskA()** read shadow registers.
-- **bool setShadowChannelMaskB(uint16_t mask)** write all channels at once.
-- **uint16_t getShadowChannelMaskB()** read shadow registers.
+- **bool setShadowChannelMaskA(uint16_t mask)** prepare all channels at once.
+- **uint16_t getShadowChannelMaskA()** read the COM-A shadow registers.
+- **bool setShadowChannelMaskB(uint16_t mask)** prepare all channels at once.
+- **uint16_t getShadowChannelMaskB()** read COM-B shadow registers.
 
-Prepare per channel.
+Prepare per channel for COM-A.
 
-- **bool isOpenShadowChannelA(uint8_t channel)** read status of specific channel in shadow registers.
+- **bool isOpenShadowChannelA(uint8_t channel)** read status of specific channel in COM-A shadow registers.
 - **void openShadowChannelA(uint8_t channel)** prepare a specific channel to open.
 - **void closeShadowChannelA(uint8_t channel)** prepare a specific channel to close.
-- **bool isOpenShadowChannelB(uint8_t channel)** read status of specific channel in shadow registers.
+
+Prepare per channel for COM-B.
+
+- **bool isOpenShadowChannelB(uint8_t channel)** read status of specific channel in COM-B shadow registers.
 - **void openShadowChannelB(uint8_t channel)** prepare a specific channel to open.
 - **void closeShadowChannelB(uint8_t channel)** prepare a specific channel to close.
 
 Note: there is no command that sets both A and B simultaneously.
+
 
 ### MUX interface
 
@@ -144,23 +179,25 @@ The MUX interface allows one channel (0..15) to be open at a time.
 - **void MUXA(uint8_t channel)** if channel < 16 only that channel will be selected.
 All other values will select no channel.
 - **uint8_t getMUXA()** returns the selected channel.
-255 means none selected.
+255 means no channel is selected (all switches off)
 - **void MUXB(uint8_t channel)** if channel < 16 only that channel will be selected.
 All other values will select no channel.
 - **uint8_t getMUXB()** returns the selected channel.
-255 means none selected.
+255 means no channel is selected (all switches off)
 
 
 ### FULL CONTROL interface
 
-Full control per channel, any combination is possible.
-Use with care as these can interfere e.g. with the PAIR interface.
-All functions return false if channel > 15.
+Full control per channel, any combination of switches is possible.
+Use with care as these can interfere e.g. with the PAIR interface, 
+or one can connect COM-A to COM-B 
+All functions return false if the channel > 15.
 
-- **bool openA(uint8_t channel)** idem
-- **bool openB(uint8_t channel)** idem
-- **bool closeA(uint8_t channel)** idem
-- **bool closeB(uint8_t channel)** idem
+- **bool connectA(uint8_t channel)** idem
+- **bool connectB(uint8_t channel)** idem
+- **bool disconnectA(uint8_t channel)** idem
+- **bool disconnectB(uint8_t channel)** idem
+- **bool disconnectAll()** fast close of all 
 
 
 ### LOW LEVEL CONTROL interface

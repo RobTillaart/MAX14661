@@ -152,15 +152,10 @@ bool MAX14661::isConnectedPair(uint8_t pair)
 }
 
 
-void MAX14661::disconnectAllPairs()
+bool MAX14661::disconnectAllPairs()
 {
-  writeRegister(MAX14661_DIR0, 0x00);
-  writeRegister(MAX14661_DIR1, 0x00);
-  writeRegister(MAX14661_DIR2, 0x00);
-  writeRegister(MAX14661_DIR3, 0x00);
-  //  test error?
+  return closeAll();
 }
-
 
 
 /////////////////////////////////////////////////////////
@@ -399,7 +394,7 @@ uint8_t MAX14661::getMUXB()
 //
 //  FULL CONTROL
 //
-bool MAX14661::openA(uint8_t channel)
+bool MAX14661::connectA(uint8_t channel)
 {
   if (channel > 15)
   {
@@ -420,7 +415,7 @@ bool MAX14661::openA(uint8_t channel)
 }
 
 
-bool MAX14661::openB(uint8_t channel)
+bool MAX14661::connectB(uint8_t channel)
 {
   if (channel > 15)
   {
@@ -441,7 +436,7 @@ bool MAX14661::openB(uint8_t channel)
 }
 
 
-bool MAX14661::closeA(uint8_t channel)
+bool MAX14661::disconnectA(uint8_t channel)
 {
   if (channel > 15)
   {
@@ -462,7 +457,7 @@ bool MAX14661::closeA(uint8_t channel)
 }
 
 
-bool MAX14661::closeB(uint8_t channel)
+bool MAX14661::disconnectB(uint8_t channel)
 {
   if (channel > 15)
   {
@@ -479,6 +474,19 @@ bool MAX14661::closeB(uint8_t channel)
   uint8_t mask = readRegister(reg);
   mask &= ~(1 << ch);
   writeRegister(reg, mask);
+  return true;
+}
+
+
+bool MAX14661::disconnectAll()
+{
+  _wire->beginTransmission(_address);
+  _wire->write(MAX14661_DIR0);
+  _wire->write(0x00);
+  _wire->write(0x00);
+  _wire->write(0x00);
+  _wire->write(0x00);
+  _error = _wire->endTransmission();
   return true;
 }
 

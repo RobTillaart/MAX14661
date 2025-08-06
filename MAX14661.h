@@ -34,7 +34,8 @@ public:
 
   //  PAIR INTERFACE
   //  - there are 8 pairs { (0,1), (2,3), (4,5), ... (14,15) }
-  //  - opening a channel connects one of the pair with COMA and the other with COMB
+  //  - connecting a pair connects one of the pair with COM-A 
+  //    and the other with COM-B
   //  - keeps the A and B line in sync, ideal for an I2C bus or Serial.
   //  - returns false if channel > 7
   //  - verify with lastError().
@@ -43,7 +44,7 @@ public:
   bool     disconnectPair(uint8_t pair);
   bool     isConnectedPair(uint8_t pair);
   //  closes A and B lines of all pairs
-  void     disconnectAllPairs();
+  bool     disconnectAllPairs();
 
 
   //  SHADOW INTERFACE
@@ -79,13 +80,14 @@ public:
 
 
   //  FULL CONTROL
-  //  - selective open and close A and B switches
+  //  - selective connect to COM-A and COM-B
   //  - returns false if channel > 15
   //
-  bool     openA(uint8_t channel);
-  bool     openB(uint8_t channel);
-  bool     closeA(uint8_t channel);
-  bool     closeB(uint8_t channel);
+  bool     connectA(uint8_t channel);
+  bool     connectB(uint8_t channel);
+  bool     disconnectA(uint8_t channel);
+  bool     disconnectB(uint8_t channel);
+  bool     disconnectAll();  //  close all channels as fast as possible
 
 
   //  LOW LEVEL CONTROL
