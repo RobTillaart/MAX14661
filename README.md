@@ -41,12 +41,16 @@ Feedback as always is welcome.
 ### 0.3.0 Breaking change
 
 Version 0.3.0 introduced a breaking change.
+
 The PAIR interface got a **complete rewrite** so its functionality matches
 the intention to work as a multiplexer for 2-wire based protocols like
 I2C and Serial.
-
 The PAIR functions of pre-0.3.0 version are all removed and new functions
-have been added to replace them.
+have been added to replace them, see below.
+
+The FULL CONTROL interface got got a **complete rewrite**.
+The FULL CONTROL functions of pre-0.3.0 version are all removed and new functions
+have been added to replace them, see below.
 
 
 ### 0.2.0 Breaking change
@@ -177,11 +181,13 @@ Note: there is no command that sets both A and B simultaneously.
 The MUX interface allows one channel (0..15) to be open at a time.
 
 - **void MUXA(uint8_t channel)** if channel < 16 only that channel will be selected.
-All other values will select no channel.
+It will disconnect previous selected channels.
+All values > 15 will select no channel.
 - **uint8_t getMUXA()** returns the selected channel.
 255 means no channel is selected (all switches off)
 - **void MUXB(uint8_t channel)** if channel < 16 only that channel will be selected.
-All other values will select no channel.
+It will disconnect previous selected channels.
+All values > 15 will select no channel.
 - **uint8_t getMUXB()** returns the selected channel.
 255 means no channel is selected (all switches off)
 

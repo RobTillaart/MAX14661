@@ -154,7 +154,7 @@ bool MAX14661::isConnectedPair(uint8_t pair)
 
 bool MAX14661::disconnectAllPairs()
 {
-  return closeAll();
+  return disconnectAll();
 }
 
 

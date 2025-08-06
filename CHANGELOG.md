@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.3.0] - 2025-08-05
 - fix PAIR BUG, implementation was wrong.
+- rewrote PAIR interface
+- rewrote FULL CONTROL interface
 - add debug example
 - improve error diagnostic
 - update examples
