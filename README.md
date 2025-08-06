@@ -16,9 +16,14 @@ Arduino library for MAX14661 multiplexer with I2C interface.
 
 ## Description
 
-The MAX14661 multiplexer is a 16 x 2 channel multiplexer.
-It has 2 lines A and B which can be
-connected up to 16 A lines and 16 B lines.
+**Experimental**
+
+The MAX14661 multiplexer is a sort of 16 x 2 channel multiplexer.
+It has 16 ABxx lines which can be connected to COM-A and/or COM-B.
+
+
+Need REDO
+
 
 The library provides 4 kinds of interfaces (see below)
 - **PAIR** switch A and B in pairs

@@ -6,7 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [0.2.1] - 2025-08-05
+## [0.3.0] - 2025-08-05
+- fix PAIR BUG, implementation was wrong.
 - add debug example
 - improve error diagnostic
 - update examples
@@ -14,6 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - update keywords.txt
 - update readme.md
 - minor edits
+
+----
 
 ## [0.2.0] - 2023-12-07
 - refactor API, begin()

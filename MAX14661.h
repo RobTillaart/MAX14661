@@ -3,7 +3,7 @@
 //    FILE: MAX14661.h
 //  AUTHOR: Rob Tillaart
 //    DATE: 2021-01-29
-// VERSION: 0.2.1
+// VERSION: 0.3.0
 // PURPOSE: Arduino library for MAX14661 16 channel I2C multiplexer
 //     URL: https://github.com/RobTillaart/MAX14661
 
@@ -12,7 +12,7 @@
 #include "Wire.h"
 
 
-#define MAX14661_LIB_VERSION                (F("0.2.1"))
+#define MAX14661_LIB_VERSION                (F("0.3.0"))
 
 #define MAX14661_OK                         0x00
 #define MAX14661_ERR_I2C_READ               0x80
@@ -33,26 +33,17 @@ public:
 
 
   //  PAIR INTERFACE
-  //  - keeps A and B line in sync, ideal for an I2C bus or Serial.
-  //  - returns false if channel > 15
+  //  - there are 8 pairs { (0,1), (2,3), (4,5), ... (14,15) }
+  //  - opening a channel connects one of the pair with COMA and the other with COMB
+  //  - keeps the A and B line in sync, ideal for an I2C bus or Serial.
+  //  - returns false if channel > 7
   //  - verify with lastError().
   //
-  //  open ==> connect
-  bool     openChannel(uint8_t channel);
-  //  close ==> disconnect
-  bool     closeChannel(uint8_t channel);
-  //  returns true if channel is opened
-  bool     isOpenChannel(uint8_t channel);
-
-  //  open A and B lines of all channels
-  void     openAllChannels();
-  //  closes A and B lines of all channels
-  void     closeAllChannels();
-
-  //  set channels with a bit mask
-  void     setChannels(uint16_t mask);
-  //  returns channel state as bit mask
-  uint16_t getChannels();
+  bool     connectPair(uint8_t pair);
+  bool     disconnectPair(uint8_t pair);
+  bool     isConnectedPair(uint8_t pair);
+  //  closes A and B lines of all pairs
+  void     disconnectAllPairs();
 
 
   //  SHADOW INTERFACE
@@ -87,8 +78,8 @@ public:
   uint8_t  getMUXB();
 
 
-  //  FULL CONTROL PER A and B LINE
-  //  - selective open and close A and B
+  //  FULL CONTROL
+  //  - selective open and close A and B switches
   //  - returns false if channel > 15
   //
   bool     openA(uint8_t channel);
@@ -104,10 +95,15 @@ public:
   //  uint8_t  clrRegister(uint8_t reg, uint8_t bit);
   //  uint16_t readRegister2(uint8_t reg);  //  2 bytes
   //  int      writeRegister2(uint8_t reg, uint16_t value);  // 2  bytes
-
+  //
   uint8_t  readRegister(uint8_t reg);
   int      writeRegister(uint8_t reg, uint8_t value);
+
+
+  //  ERROR HANDLING
+  //
   int      lastError();
+
 
 private:
   uint8_t  _address;

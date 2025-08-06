@@ -26,14 +26,13 @@ void setup()
   {
     Serial.print(mux.lastError());
     Serial.println("\t Could not find MAX14661");
-    while(1);
+    while (1);
   }
-  
+
   test1();
   test2();
-  test3();
-  test4();
-  test5();
+
+  Serial.println("\ndone...");
 }
 
 
@@ -41,13 +40,24 @@ void test1()
 {
   Serial.println();
   Serial.println(__FUNCTION__);
-  for (int ch = 0; ch < 16; ch++)
+  for (int pair = 0; pair < 8; pair++)
   {
-    mux.openChannel(ch);
-    Serial.println(mux.getChannels(), HEX);
+    mux.disconnectPair(pair);
+    Serial.print(pair);
+    Serial.print("\t");
+    Serial.print(mux.isConnectedPair(pair));
+    Serial.print("\t");
+    mux.connectPair(pair);
+    Serial.print(mux.isConnectedPair(pair));
+    Serial.println();
   }
-  mux.closeAllChannels();
-  Serial.println(mux.getChannels(), HEX);
+  mux.disconnectAllPairs();
+  for (int pair = 0; pair < 8; pair++)
+  {
+    Serial.print("\t");
+    Serial.print(mux.isConnectedPair(pair));
+  }
+  Serial.println();
 }
 
 
@@ -55,52 +65,25 @@ void test2()
 {
   Serial.println();
   Serial.println(__FUNCTION__);
-  for (int ch = 0; ch < 16; ch++)
-  {
-    mux.openChannel(ch);
-    Serial.println(mux.getChannels(), HEX);
-    mux.closeChannel(ch);
-  }
-  mux.closeAllChannels();
-  Serial.println(mux.getChannels(), HEX);
-}
-
-
-void test3()
-{
-  Serial.println();
-  Serial.println(__FUNCTION__);
-  Serial.println(mux.getChannels(), HEX);
-  mux.openAllChannels();
-  mux.closeAllChannels();
-  Serial.println(mux.getChannels(), HEX);
-}
-
-
-void test4()
-{
-  Serial.println();
-  Serial.println(__FUNCTION__);
-  Serial.println(mux.getChannels(), HEX);
-  mux.openAllChannels();
-  Serial.println(mux.getChannels(), HEX);
-  mux.closeAllChannels();
-  Serial.println(mux.getChannels(), HEX);
-}
-
-
-void test5()
-{
-  Serial.println();
-  Serial.println(__FUNCTION__);
+  mux.disconnectAllPairs();
   for (int i = 0; i < 10; i++)
   {
-    uint16_t mask = random(65536);
-    mux.setChannels(mask);
-    Serial.println(mux.getChannels(), HEX);
+    uint8_t pair = random(8);
+    mux.connectPair(pair);
+    for (int pair = 0; pair < 8; pair++)
+    {
+      Serial.print("\t");
+      Serial.print(mux.isConnectedPair(pair));
+    }
+    Serial.println();
   }
-  mux.closeAllChannels();
-  Serial.println(mux.getChannels(), HEX);
+  mux.disconnectAllPairs();
+  for (int pair = 0; pair < 8; pair++)
+  {
+    Serial.print("\t");
+    Serial.print(mux.isConnectedPair(pair));
+  }
+  Serial.println();
 }
 
 

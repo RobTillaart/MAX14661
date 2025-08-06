@@ -2,7 +2,7 @@
 //    FILE: MAX14661.cpp
 //  AUTHOR: Rob Tillaart
 //    DATE: 2021-01-29
-// VERSION: 0.2.1
+// VERSION: 0.3.0
 // PURPOSE: Arduino library for MAX14661 16 channel I2C multiplexer
 //     URL: https://github.com/RobTillaart/MAX14661
 
@@ -65,142 +65,102 @@ uint8_t MAX14661::getAddress()
 //
 //  PAIR INTERFACE
 //
-//  opens both A and B channel
-bool MAX14661::openChannel(uint8_t channel)
+bool MAX14661::connectPair(uint8_t pair)
 {
-  if (channel > 15)
+  if (pair > 7)
   {
     _error = MAX14661_ERR_CHANNEL;
     return false;
   }
-  uint8_t ch = channel;
+  uint8_t channel = pair * 2;  //  select A channel
   uint8_t reg = MAX14661_DIR0;
-  if (ch > 7)
+  if (channel > 7)
   {
     reg = MAX14661_DIR1;
-    ch -= 8;
+    channel -= 8;
   }
   //  Handle switch A
   uint8_t mask = readRegister(reg);
   //  test _error?
-  mask |= (1 << ch);
+  mask |= (1 << channel);
   writeRegister(reg, mask);
   //  test _error?
 
   //  Handle switch B
   reg += 2;
-  //  TODO
-  //  do we need this as mask A == mask B == identical.
-  //  - forces PAIR behaviour
-  //  - improves performance a bit.
+  channel = channel + 1;  //  select B channel
   mask = readRegister(reg);
   //  test _error?
-  mask |= (1 << ch);
+  mask |= (1 << channel);
   writeRegister(reg, mask);
   //  test _error?
   return true;
 }
 
 
-//  closes both A and B channel
-bool MAX14661::closeChannel(uint8_t channel)
+bool MAX14661::disconnectPair(uint8_t pair)
 {
-  if (channel > 15)
+  if (pair > 7)
   {
     _error = MAX14661_ERR_CHANNEL;
     return false;
   }
-  uint8_t ch = channel;
+  uint8_t channel = pair * 2;  //  select A channel
   uint8_t reg = MAX14661_DIR0;
-  if (ch > 7)
+  if (channel > 7)
   {
     reg = MAX14661_DIR1;
-    ch -= 8;
+    channel -= 8;
   }
   //  Handle switch A
   uint8_t mask = readRegister(reg);
   //  test _error?
-  mask &= ~(1 << ch);
+  mask &= ~(1 << channel);
   writeRegister(reg, mask);
   //  test _error?
 
   //  Handle switch B
   reg += 2;
-  //  TODO
-  //  do we need this as mask A == mask B == identical.
-  //  - forces PAIR behaviour
-  //  - improves performance a bit.
+  channel = channel + 1;  //  select B channel
   mask = readRegister(reg);
   //  test _error?
-  mask &= ~(1 << ch);
+  mask &= ~(1 << channel);
   writeRegister(reg, mask);
   //  test _error?
   return true;
 }
 
 
-//  assumption both A and B are in same state in PAIR mode
-bool MAX14661::isOpenChannel(uint8_t channel)
+bool MAX14661::isConnectedPair(uint8_t pair)
 {
-  if (channel > 15)
+  if (pair > 7)
   {
     _error = MAX14661_ERR_CHANNEL;
     return false;
   }
-  uint8_t ch = channel;
+  uint8_t channel = pair * 2;  //  select A channel
   uint8_t reg = MAX14661_DIR0;
-  if (ch > 7)
+  if (channel > 7)
   {
     reg = MAX14661_DIR1;
-    ch -= 8;
+    channel -= 8;
   }
+  //  Handle switch A
   uint8_t mask = readRegister(reg);
   //  test _error?
-  return (mask & (1 << ch)) > 0;
+  return (mask & (1 << channel)) > 0;
 }
 
 
-void MAX14661::openAllChannels()
+void MAX14661::disconnectAllPairs()
 {
-  setChannels(0xFFFF);
-  //  return bool
+  writeRegister(MAX14661_DIR0, 0x00);
+  writeRegister(MAX14661_DIR1, 0x00);
+  writeRegister(MAX14661_DIR2, 0x00);
+  writeRegister(MAX14661_DIR3, 0x00);
+  //  test error?
 }
 
-
-void MAX14661::closeAllChannels()
-{
-  setChannels(0);
-  //  return bool
-}
-
-
-void MAX14661::setChannels(uint16_t mask)
-{
-  //  only do bit magic once.
-  //  uint8_t maskLow = mask & 0x00FF;
-  //  uint8_t maskHigh = mask >> 8;
-  //  order of writes may matter, DIR0->DIR2->DIR1->DIR3 better?
-
-  writeRegister(MAX14661_DIR0, mask & 0x00FF);
-  //  test _error?
-  writeRegister(MAX14661_DIR1, (mask & 0xFF00) >> 8);
-  //  test _error?
-  writeRegister(MAX14661_DIR2, mask & 0x00FF);
-  //  test _error?
-  writeRegister(MAX14661_DIR3, (mask & 0xFF00) >> 8);
-  //  test _error?
-  //  return bool
-}
-
-
-//  assumption both A and B are in same state in PAIR mode
-uint16_t MAX14661::getChannels()
-{
-  uint16_t channels = readRegister(MAX14661_DIR1) << 8;
-  //  test _error?
-  channels |= readRegister(MAX14661_DIR0);
-  return channels;
-}
 
 
 /////////////////////////////////////////////////////////
