@@ -27,15 +27,27 @@ The library provides four interfaces (details see below)
 - **MUX** open channels exclusively.
 - **FULL** control all as you like.
 
-Mixing these interfaces is allowed but definitely not advised as
+Mixing these interfaces is allowed in theory but definitely not advised as
 especially the **PAIR** interface assumes that A and B selections
 are kept in sync.
 So depending on your application choose the interface you want to use.
 
+**Warning**
+
+Be aware that by switching on both the A and B switch for any
+line ABxx will short-circuit the COM-A and COM-B. such short-circuit would
+also connect any ABxx line to any other if one of their switches is switched on.
+There might be projects when such short-circuit is no problem and if
+intended it can be done, but be careful.
+
+Feedback as always is welcome, please open an issue on GitHub.
+
+
+### SPI vs I2C
+
 The MAX14661 device can be controlled by SPI or I2C.
 This library implements only the I2C interface.
-
-Feedback as always is welcome.
+If you need a SPI library for the MAX14661, feel free to contact me.
 
 
 ### 0.3.0 Breaking change
@@ -48,7 +60,7 @@ I2C and Serial.
 The PAIR functions of pre-0.3.0 version are all removed and new functions
 have been added to replace them, see below.
 
-The FULL CONTROL interface got got a **complete rewrite**.
+The FULL CONTROL interface got a **complete rewrite**.
 The FULL CONTROL functions of pre-0.3.0 version are all removed and new functions
 have been added to replace them, see below.
 
@@ -122,7 +134,7 @@ Returns true if device address is seen on I2C bus.
 (note the PAIR interface is completely rewritten in 0.3.0)
 
 The ABxx lines are considered to form 8 pairs { (0,1), (2,3), (4,5), ... (14,15) }.
-The functions in this interface manage the switches in pairs, so when e.g. pair 3 
+The functions in this interface manage the switches in pairs, so when e.g. pair 3
 is connected, AB06 connects with COM-A and AB07 connects with COM-B.
 This allows one to multiplex an I2C bus, a Serial TX/RX pair, or any 2 wires based protocol.
 
@@ -173,7 +185,7 @@ Prepare per channel for COM-B.
 - **void openShadowChannelB(uint8_t channel)** prepare a specific channel to open.
 - **void closeShadowChannelB(uint8_t channel)** prepare a specific channel to close.
 
-Note: there is no command that sets both A and B simultaneously.
+Note: there is no command that sets both A and B exactly simultaneously.
 
 
 ### MUX interface
@@ -195,15 +207,16 @@ All values > 15 will select no channel.
 ### FULL CONTROL interface
 
 Full control per channel, any combination of switches is possible.
-Use with care as these can interfere e.g. with the PAIR interface, 
-or one can connect COM-A to COM-B 
+Use with care as these can interfere e.g. with the PAIR interface,
+or one can connect COM-A to COM-B, causing all pins to be connected to each other.
+
 All functions return false if the channel > 15.
 
 - **bool connectA(uint8_t channel)** idem
 - **bool connectB(uint8_t channel)** idem
 - **bool disconnectA(uint8_t channel)** idem
 - **bool disconnectB(uint8_t channel)** idem
-- **bool disconnectAll()** fast close of all 
+- **bool disconnectAll()** fast disconnect of all ABxx lines
 
 
 ### LOW LEVEL CONTROL interface
@@ -234,42 +247,38 @@ Note: here are also low level Wire errors possible. (how to handle them).
 #### Must
 
 - improve documentation
+- get hardware for testing.
 
 #### Should
 
 - test behaviour.
-- implement error handling.
-  - use an internal mode to see which of the three interfaces is used
-    consequently or not?
-  - redo void() => bool() so more detail or even int()?
-- TODO handle TODO's in code / documentation.
-
 
 #### Could
 
-- optimize low level bit set/clr/get read/write 2 bytes at once.
-- write unit tests.
-- test I2C communication speed.
-  - 100-400 kHz and up.
-- measure performance.
-  - different modi
-- cache direct registers. (fast response).
-- **ShutDown()** SD pin. for low power datasheet p.15
+- optimizations
+  - low level bit set/clear/get
+  - read/write 2 bytes at once.
+  - cache direct registers. (faster, but possible incorrect).
+  - only write register if changed.
+- **ShutDown()** SD pin. For low power datasheet p.15
   - document it.
-  - implement.
-- implement openChannel() with openA() openB()?
-  - less code :)
-  - less performance :(
-- **int MUXA()** to return writeRegister()?
-- need for a 32 channel interface? A = 0-15, B = 16-31?
+  - implement it.
 
 #### Wont
 
 - SPI interface.
-  - separate (derived ?) class
+  - separate (derived ?) class, upon request maybe
 - initial values parameter for begin()?
-  - depends on interface (PAIR MUX SHADOW) used, ambiguous.
+  - depends on interface (PAIR MUX SHADOW FULL) used, so ambiguous.
   - ==> user task.
+- use an internal mode to see which of the three interfaces is used
+    consequently or not?  performance penalty
+    ==> user responsibility
+- write unit tests.
+  - needs full mock,
+- redo functions signature void() => bool() so more detail or even int()?
+  => affects performance.
+  => user can check lastError();
 
 
 ## Support

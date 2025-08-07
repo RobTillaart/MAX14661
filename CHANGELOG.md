@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - rewrote PAIR interface
 - rewrote FULL CONTROL interface
 - add debug example
+- add performance example
 - improve error diagnostic
 - update examples
 - update license
