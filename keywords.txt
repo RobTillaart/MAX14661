@@ -35,10 +35,10 @@ getMUXA	KEYWORD2
 MUXB	KEYWORD2
 getMUXB	KEYWORD2
 
-openA	KEYWORD2
-openB	KEYWORD2
-closeA	KEYWORD2
-closeB	KEYWORD2
+connectA	KEYWORD2
+connectB	KEYWORD2
+disconnectA	KEYWORD2
+disconnectB	KEYWORD2
 
 readRegister	KEYWORD2
 writeRegister	KEYWORD2
